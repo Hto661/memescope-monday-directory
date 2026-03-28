@@ -1,11 +1,26 @@
 import { NextResponse } from 'next/server';
 import { PAID_FEATURES } from '@/lib/types';
 import { getCoinBySlug, markPaidExpedited, markPaidTrending } from '@/lib/data';
+import {
+  getAvailableProviders,
+  createNowPayment,
+  createStripeCheckout,
+  type PaymentProvider,
+} from '@/lib/payments';
+
+export async function GET() {
+  const providers = getAvailableProviders();
+  return NextResponse.json({
+    providers: providers.filter((p) => p !== 'demo'),
+    acceptsCrypto: providers.includes('nowpayments'),
+    acceptsCard: providers.includes('stripe'),
+  });
+}
 
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { coinSlug, feature } = body;
+    const { coinSlug, feature, provider: requestedProvider, payCurrency } = body;
 
     if (!coinSlug || !feature) {
       return NextResponse.json({ error: 'coinSlug and feature are required' }, { status: 400 });
@@ -20,32 +35,37 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Invalid feature' }, { status: 400 });
     }
 
-    const stripeKey = process.env.STRIPE_SECRET_KEY;
+    const available = getAvailableProviders();
+    const provider: PaymentProvider = requestedProvider && available.includes(requestedProvider)
+      ? requestedProvider
+      : available[0];
 
-    if (!stripeKey) {
-      // No Stripe configured — apply features directly (demo mode)
-      if (feature === 'expedited' || feature === 'bundle') {
-        await markPaidExpedited(coinSlug);
-      }
-      if (feature === 'trending' || feature === 'bundle') {
-        await markPaidTrending(coinSlug);
-      }
-
-      return NextResponse.json({
-        success: true,
-        demo: true,
-        message: 'Features applied in demo mode (no Stripe configured)',
-      });
+    // NOWPayments (crypto)
+    if (provider === 'nowpayments') {
+      const result = await createNowPayment(feature, coinSlug, 'usd', payCurrency || 'sol');
+      return NextResponse.json(result);
     }
 
-    // With Stripe configured, create a checkout session
-    // This is a placeholder — integrate real Stripe SDK here
-    const feat = PAID_FEATURES[feature as keyof typeof PAID_FEATURES];
+    // Stripe (card)
+    if (provider === 'stripe') {
+      const result = await createStripeCheckout(feature, coinSlug);
+      return NextResponse.json(result);
+    }
+
+    // Demo mode — apply features directly
+    if (feature === 'expedited' || feature === 'bundle') {
+      await markPaidExpedited(coinSlug);
+    }
+    if (feature === 'trending' || feature === 'bundle') {
+      await markPaidTrending(coinSlug);
+    }
+
     return NextResponse.json({
-      checkoutUrl: null,
-      message: `Stripe checkout for ${feat.label} ($${feat.price}) — configure STRIPE_SECRET_KEY to enable payments`,
+      provider: 'demo',
+      message: 'Features applied in demo mode (no payment provider configured)',
     });
-  } catch {
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  } catch (err) {
+    const message = err instanceof Error ? err.message : 'Checkout failed';
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }

@@ -81,10 +81,15 @@ cp .env.example .env.local
 |----------|----------|-------------|
 | `TURSO_DATABASE_URL` | Production | Turso database URL (e.g., `libsql://your-db.turso.io`) |
 | `TURSO_AUTH_TOKEN` | Production | Turso auth token |
+| `NOWPAYMENTS_API_KEY` | No | [NOWPayments](https://nowpayments.io) API key — crypto payments (200+ coins, no KYC) |
+| `NOWPAYMENTS_IPN_SECRET` | No | NOWPayments IPN secret — verifies payment callbacks |
+| `STRIPE_SECRET_KEY` | No | [Stripe](https://stripe.com) secret key — card payments |
+| `STRIPE_WEBHOOK_SECRET` | No | Stripe webhook signing secret — verifies payment callbacks |
 | `NEXT_PUBLIC_BASE_URL` | No | Site URL (default: `https://memescope.monday.directory`) |
-| `STRIPE_SECRET_KEY` | No | Stripe key for paid features (demo mode without it) |
 | `CRYPTO_NEWS_API_URL` | No | [free-crypto-news](https://github.com/nirholas/free-crypto-news) instance URL |
 | `ADMIN_SECRET` | No | Admin password for managing submissions |
+
+**Payment providers:** Configure one or both. If both are set, users can choose between crypto and card. If neither is set, paid features run in demo mode (applied free).
 
 ---
 
@@ -220,7 +225,10 @@ src/
 | GET | `/api/coins/[slug]/chat` | No | Get chat messages |
 | POST | `/api/coins/[slug]/chat` | No* | Send chat message (*username used if logged in) |
 | POST | `/api/submit` | No | Submit a new coin |
-| POST | `/api/checkout` | No | Purchase paid features |
+| GET | `/api/checkout` | No | List available payment providers |
+| POST | `/api/checkout` | No | Create checkout (NOWPayments / Stripe / demo) |
+| POST | `/api/webhooks/nowpayments` | No | NOWPayments IPN callback |
+| POST | `/api/webhooks/stripe` | No | Stripe webhook callback |
 | GET | `/api/watchlist` | Yes | Get user's watchlist |
 | POST | `/api/watchlist` | Yes | Add/remove from watchlist |
 | GET | `/api/watchlist/check` | Yes | Check if coin is in watchlist |
@@ -240,8 +248,11 @@ Live market data and chart embeds. No API key needed. Auto-maps chains:
 ### free-crypto-news
 Optional news feed integration. Deploy your own instance from [github.com/nirholas/free-crypto-news](https://github.com/nirholas/free-crypto-news) and set `CRYPTO_NEWS_API_URL`.
 
-### Stripe (Optional)
-Set `STRIPE_SECRET_KEY` to enable paid features. Without it, paid features run in demo mode (applied immediately without payment).
+### Payments
+- **NOWPayments** — set `NOWPAYMENTS_API_KEY` + `NOWPAYMENTS_IPN_SECRET` for crypto payments (SOL, BTC, ETH, USDC, 200+ coins). No KYC. Webhook: `/api/webhooks/nowpayments`
+- **Stripe** — set `STRIPE_SECRET_KEY` + `STRIPE_WEBHOOK_SECRET` for card payments. Webhook: `/api/webhooks/stripe`
+- **Both** — if both are configured, users choose between crypto and card at checkout
+- **Neither** — paid features run in demo mode (applied immediately without payment)
 
 ---
 
